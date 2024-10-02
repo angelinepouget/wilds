@@ -41,6 +41,7 @@ import os.path
 import hashlib
 import gzip
 import errno
+import ssl
 import tarfile
 from typing import Any, Callable, List, Iterable, Optional, TypeVar
 import zipfile
@@ -91,6 +92,7 @@ def download_url(url: str, root: str, filename: Optional[str] = None, md5: Optio
         md5 (str, optional): MD5 checksum of the download. If None, do not check
     """
     import urllib
+    context = ssl._create_unverified_context()
 
     root = os.path.expanduser(root)
     if not filename:
@@ -105,10 +107,11 @@ def download_url(url: str, root: str, filename: Optional[str] = None, md5: Optio
     else:   # download the file
         try:
             print('Downloading ' + url + ' to ' + fpath)
-            urllib.request.urlretrieve(
-                url, fpath,
-                reporthook=gen_bar_updater(size)
-            )
+            # Open the URL and read the content using urlopen, passing the unverified context
+            with urllib.request.urlopen(url, context=context) as response, open(fpath, 'wb') as out_file:
+                data = response.read()
+                out_file.write(data)
+                print(f"Download completed: {fpath}")
         except (urllib.error.URLError, IOError) as e:  # type: ignore[attr-defined]
             if url[:5] == 'https':
                 url = url.replace('https:', 'http:')
