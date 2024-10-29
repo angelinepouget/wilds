@@ -100,6 +100,12 @@ def initialize_bert_transform(config):
     tokenizer = get_bert_tokenizer(config.model)
 
     def transform(text):
+        # Check if 'text' is of the correct type
+        if not isinstance(text, (str, list)):
+            # Print debug information for the unexpected input
+            text = ""
+
+        # Tokenize the text
         tokens = tokenizer(
             text,
             padding="max_length",
@@ -107,6 +113,8 @@ def initialize_bert_transform(config):
             max_length=config.max_token_length,
             return_tensors="pt",
         )
+
+        # Stack tokens based on the model
         if config.model == "bert-base-uncased":
             x = torch.stack(
                 (
@@ -118,6 +126,8 @@ def initialize_bert_transform(config):
             )
         elif config.model == "distilbert-base-uncased":
             x = torch.stack((tokens["input_ids"], tokens["attention_mask"]), dim=2)
+        
+        # Squeeze the tensor and return
         x = torch.squeeze(x, dim=0)  # First shape dim is always 1
         return x
 
