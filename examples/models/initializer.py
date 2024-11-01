@@ -159,8 +159,8 @@ def initialize_model(config, d_out, is_featurizer=False):
 
 
 def initialize_bert_based_model(config, d_out, featurize=False):
-    from models.bert.bert import BertClassifier, BertFeaturizer
-    from models.bert.distilbert import DistilBertClassifier, DistilBertFeaturizer
+    from examples.models.bert.bert import BertClassifier, BertFeaturizer
+    from examples.models.bert.distilbert import DistilBertClassifier, DistilBertFeaturizer
 
     if config.pretrained_model_path:
         print(f'Initialized model with pretrained weights from {config.pretrained_model_path}')
